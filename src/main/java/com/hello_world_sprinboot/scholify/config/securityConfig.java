@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -46,11 +48,18 @@ public class securityConfig {
     */
    @Bean
    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-      http.csrf().ignoringRequestMatchers("/saveMsg").and()
+      http.csrf().ignoringRequestMatchers("/saveMsg")
+              .ignoringRequestMatchers("/scholify/actuator/**").ignoringRequestMatchers("/api/**").ignoringRequestMatchers("/hall-explorer/**").and()
               .authorizeHttpRequests()
               .requestMatchers("/dashboard").authenticated()
-              .requestMatchers("/displayMessages").hasRole("ADMIN")
+              .requestMatchers("/displayProfile").authenticated()
+              .requestMatchers("/updateProfile").authenticated()
+              .requestMatchers("/scholify/actuator/**").hasRole("ADMIN")
+              .requestMatchers("/hall-explorer/**").authenticated()
+              .requestMatchers("/student/**").hasRole("STUDENT")
+              .requestMatchers("/displayMessages/**").hasRole("ADMIN")
               .requestMatchers("/closeMsg/**").hasRole("ADMIN")
+              .requestMatchers("/admin/**").hasRole("ADMIN")
               .requestMatchers("/index").permitAll()
               .requestMatchers("/holidays/**").permitAll()
               .requestMatchers("/contact").permitAll()
@@ -58,7 +67,9 @@ public class securityConfig {
               .requestMatchers("/courses").permitAll()
               .requestMatchers("/about").permitAll()
               .requestMatchers("/login").permitAll()
+              .requestMatchers("/api/**").authenticated()
               .requestMatchers("/logout").permitAll()
+              .requestMatchers("/public/**").permitAll()
               .requestMatchers("/assets/**").permitAll()
               .and().formLogin().loginPage("/login")
               .defaultSuccessUrl("/dashboard").failureUrl("/login?error=true").permitAll()
@@ -69,19 +80,8 @@ public class securityConfig {
    }
 
    @Bean
-   public InMemoryUserDetailsManager userDetailsService() {
-
-      UserDetails admin = withDefaultPasswordEncoder()
-              .username("user")
-              .password("12345")
-              .roles("USER")
-              .build();
-      UserDetails user = withDefaultPasswordEncoder()
-              .username("admin")
-              .password("54321")
-              .roles("USER","ADMIN")
-              .build();
-      return new InMemoryUserDetailsManager(user, admin);
+   public PasswordEncoder passwordEncoder(){
+      return new BCryptPasswordEncoder();
    }
 
 }

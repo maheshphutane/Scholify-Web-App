@@ -6,6 +6,11 @@ import com.hello_world_sprinboot.scholify.repository.ContactRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 
@@ -23,13 +28,15 @@ public class ContactService {
 
     @Autowired
     private ContactRepository contactRepository;
+
+
+    @Value("${scholify.pageSize}")
+    private int pageSize;
     //private static Logger log = LoggerFactory.getLogger(ContactService.class);
     // As we have used @Slf4j annotation which automatically create log object
     public boolean saveMessageDetails(Contact contact){
         boolean isSaved = false;
         contact.setStatus(ScholifyConstants.OPEN);
-        contact.setCreatedBy(ScholifyConstants.ANONYMOUS);
-        contact.setCreatedAt(LocalDateTime.now());
 
         Contact res = contactRepository.save(contact);
         if(res!=null && res.getContactId()>0){
@@ -43,13 +50,11 @@ public class ContactService {
         return  contMsg;
     }
 
-    public boolean updateStatusOfMsg(int id, String name) {
+    public boolean updateStatusOfMsg(int id) {
         boolean isUpdated = false;
         Optional<Contact> contact = contactRepository.findById(id);
         contact.ifPresent(contact1->{
             contact1.setStatus(ScholifyConstants.CLOSE);
-            contact1.setUpdatedBy(name);
-            contact1.setUpdatedAt(LocalDateTime.now());
         });
         Contact updatedContact = contactRepository.save(contact.get());
 
@@ -57,5 +62,15 @@ public class ContactService {
             isUpdated = true;
         }
         return isUpdated;
+    }
+
+    public Page<Contact> findMsgsWithOpenStatus(int pageNum, String sortField, String sortDir) {
+
+        Pageable pageable = PageRequest.of(pageNum - 1, pageSize,
+                sortDir.equals("asc") ? Sort.by(sortField).ascending()
+                        : Sort.by(sortField).descending());
+        Page<Contact> msgPage = contactRepository.findByStatusWithQuery(
+                ScholifyConstants.OPEN,pageable);
+        return msgPage;
     }
 }

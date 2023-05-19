@@ -1,18 +1,16 @@
 package com.hello_world_sprinboot.scholify.repository;
 
-import com.hello_world_sprinboot.scholify.constans.ScholifyConstants;
 import com.hello_world_sprinboot.scholify.model.Contact;
-import com.hello_world_sprinboot.scholify.rowmapper.ContactRowMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hello_world_sprinboot.scholify.model.Courses;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.stereotype.Repository;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -23,9 +21,14 @@ type to the Spring context and indicate that given Bean is used to perform
 DB related operations and
 * */
 @Repository
-public interface ContactRepository extends CrudRepository<Contact,Integer> {
+@RepositoryRestResource(exported = false)
+public interface ContactRepository extends CrudRepository<Contact,Integer>, PagingAndSortingRepository<Contact, Integer> {
 
     List<Contact> findByStatus(String status);
+    @Query("SELECT c FROM Contact c WHERE c.status = :status")
+    Page<Contact> findByStatusWithQuery(@Param("status") String status, Pageable pageable); // for pagination
+
+
 
 //    private final JdbcTemplate jdbcTemplate;
 //    @Autowired

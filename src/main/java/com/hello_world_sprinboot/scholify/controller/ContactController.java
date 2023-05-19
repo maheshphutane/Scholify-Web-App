@@ -4,11 +4,13 @@ import com.hello_world_sprinboot.scholify.service.ContactService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
@@ -57,17 +59,26 @@ public class ContactController {
         return "redirect:/contact";
     }
 
-    @RequestMapping(value = "/displayMessages")
-    public ModelAndView displayMessage(Model model){
-        List<Contact> contactMsg = contactService.getListOfContactWithOpenStatus();
+    @RequestMapping(value = "/displayMessages/page/{pageNum}")
+    public ModelAndView displayMessage(Model model,
+                                       @PathVariable(name = "pageNum") int pageNum, @RequestParam("sortField") String sortField,
+                                       @RequestParam("sortDir") String sortDir){
+        Page<Contact> msgPage = contactService.findMsgsWithOpenStatus(pageNum,sortField,sortDir);
+        List<Contact> contactMsgs = msgPage.getContent();
         ModelAndView modelAndView = new ModelAndView("messages.html");
-        modelAndView.addObject("contactMsg",contactMsg);
+        model.addAttribute("currentPage", pageNum);
+        model.addAttribute("totalPages", msgPage.getTotalPages());
+        model.addAttribute("totalMsgs", msgPage.getTotalElements());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        modelAndView.addObject("contactMsgs",contactMsgs);
         return modelAndView;
     }
 
     @RequestMapping(value = "/closeMsg" ,method = GET)
-    public String updateStatus(@RequestParam int id, Authentication authentication){
-        contactService.updateStatusOfMsg(id, authentication.getName());
-        return "redirect:/displayMessages";
+    public String updateStatus(@RequestParam int id){
+        contactService.updateStatusOfMsg(id);
+        return "redirect:/displayMessages/page/1?sortField=name&sortDir=asc";
     }
 }

@@ -3,8 +3,7 @@ Author: W3layouts
 Author URL: http://w3layouts.com
 -->
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
   <!-- Required meta tags -->
@@ -27,38 +26,73 @@ Author URL: http://w3layouts.com
 <section class="inner-banner py-5">
   <div class="w3l-breadcrumb py-lg-5">
     <div class="container pt-4 pb-sm-4">
-      <h4 class="inner-text-title pt-5">Oops...</h4>
+      <h4 class="inner-text-title pt-5">Register</h4>
       <ul class="breadcrumbs-custom-path">
         <li><a th:href="@{/index}">Home</a></li>
-        <li class="active"><i class="fas fa-angle-right"></i>Error</li>
+        <li class="active"><i class="fas fa-angle-right"></i>Register</li>
       </ul>
     </div>
   </div>
 </section>
 <!-- //inner banner -->
 
-<!-- error block -->
-<section class="page_404">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-12 ">
-        <div class="col-sm-10 col-sm-offset-1  text-center">
-          <div class="four_zero_four_bg">
-            <h1 class="text-center">oops...</h1>
+<!-- contact block -->
+<section class="w3l-contact py-5" id="contact">
+  <div class="container py-md-5 py-4">
+    <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+      <h3 class="title-style">Registration Form</h3>
+    </div>
+    <div class="row login-block">
+      <div class="col-md-7 login-center">
+        <ul>
+          <li class="alert alert-danger" role="alert" th:each="error : ${#fields.errors('person.*')}" th:text="${error}" />
+        </ul>
+        <form th:action="@{/public/createUser}" method="post" class="signin-form" th:object="${person}">
+          <div class="title-main text-center mx-auto mb-md-5 mb-4" style="max-width:500px;">
+            <p class="text-uppercase">Personal Details</p>
           </div>
-          <div class="contant_box_404">
-            <h3 class="h2">
-              Look like you're lost
-            </h3>
-            <p th:text="${'Error Message - ' + errormsg}"></p>
-            <a th:href="@{/index}" class="link_404 btn btn-style btn-style-3">Go to Home</a>
+          <div class="input-grids">
+            <div class="row">
+              <div class="col-sm-6">
+                <input type="text" th:field="*{name}" placeholder="Name"
+                       class="contact-input" />
+              </div>
+              <div class="col-sm-6">
+                <input type="text" th:field="*{mobileNumber}" placeholder="Mobile Number"
+                       class="contact-input" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <input type="text" th:field="*{email}" placeholder="Email"
+                       class="contact-input" />
+              </div>
+              <div class="col-sm-6">
+                <input type="text" th:field="*{confirmEmail}" placeholder="Confirm Email"
+                       class="contact-input" />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-6">
+                <input type="password" th:field="*{pwd}" placeholder="Password"
+                       class="contact-input" />
+              </div>
+              <div class="col-sm-6">
+                <input type="password" th:field="*{confirmPwd}" placeholder="Confirm Password"
+                       class="contact-input" />
+              </div>
+            </div>
+
           </div>
-        </div>
+          <div class="col-md-3 login-center text-start">
+            <button class="btn btn-style btn-style-3">Register</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </section>
-<!-- //error block -->
+<!-- //contact block -->
 
 <!-- footer block -->
 <div th:replace="~{footer :: footer}">...</div>
